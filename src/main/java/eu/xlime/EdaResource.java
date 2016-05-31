@@ -20,7 +20,7 @@ import net.sf.ehcache.Element;
  *
  */
 
-@Path("/xlime-data-summary")
+@Path("/")
 public class EdaResource {
 
 	private SingleEdaItem xlime;
@@ -29,7 +29,7 @@ public class EdaResource {
 	@Context
 	private ServletContext context;
 
-	@Path("/counters")
+	@Path("counters")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	public Response service(@QueryParam("action") String action, @QueryParam("object") String object, @QueryParam("format") String format) {
@@ -46,13 +46,26 @@ public class EdaResource {
 					.ok(xlime, "json".equals(format) ? MediaType.APPLICATION_JSON : MediaType.APPLICATION_XML)
 					.build();
 		}
+		
+		if (action.equals("getCountsFilter")){
+			String object_string = "";
+			if (object != null){
+				object_string = object;
+			}			
+			this.executeCallCountersFilter(object_string);
+
+			return Response
+					// Set the status, entity and media type of the response.
+					.ok(xlime, "json".equals(format) ? MediaType.APPLICATION_JSON : MediaType.APPLICATION_XML)
+					.build();
+		}
 
 		return Response.status(Response.Status.BAD_REQUEST)
 				.entity("Only actions available: getCounts")
 				.type(MediaType.TEXT_PLAIN).build();		
-	}
+	}	
 
-	@Path("/histograms")
+	@Path("histograms")
 	@GET
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	public Response service2(@QueryParam("action") String action, @QueryParam("object") String object, @QueryParam("format") String format) {
@@ -77,7 +90,7 @@ public class EdaResource {
 
 	private void executeCallCounters(String object){
 		xlime = new SingleEdaItem();
-		eid = new EdaItemDao(context);
+		eid = new EdaItemDao();
 		CacheManager cm = (CacheManager) context.getAttribute("sparqlCache");
 		Cache cache = cm.getCache("sparqlCache");
 		String[] params = object.split(",");
@@ -167,10 +180,24 @@ public class EdaResource {
 		}
 	}
 
+	private void executeCallCountersFilter(String object) {
+		xlime = new SingleEdaItem();
+		eid = new EdaItemDao();
+		CacheManager cm = (CacheManager) context.getAttribute("sparqlCache");
+		Cache cache = cm.getCache("sparqlCache");
+		Element e = cache.get(object);	
+		if (e != null) 
+			xlime.setMicroposts_filter((String) e.getObjectValue());		
+		else{
+			xlime.setMicroposts_filter(eid.getNumMicropostsbyFilter(object));
+			cache.put(new Element(object, xlime.getMicroposts_filter()));
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private void executeCallHistograms(String object){
 		xlime = new SingleEdaItem();
-		eid = new EdaItemDao(context);
+		eid = new EdaItemDao();
 		CacheManager cm = (CacheManager) context.getAttribute("sparqlCache");
 		Cache cache = cm.getCache("sparqlCache");
 		String[] params = object.split(",");
@@ -195,5 +222,5 @@ public class EdaResource {
 				}
 			}*/
 		}
-	}
+	}	
 }

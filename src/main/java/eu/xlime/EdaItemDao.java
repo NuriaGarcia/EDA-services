@@ -1,15 +1,9 @@
 package eu.xlime;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-
-import javax.servlet.ServletContext;
 
 import com.google.common.collect.Multiset;
 import com.isoco.kontology.access.OntologyAccessException;
@@ -31,30 +25,17 @@ public class EdaItemDao {
 	private static OntologyManager ontoMan;
 	private static VoiDManager ontoManager;
 
-	public EdaItemDao(ServletContext context){
-		this.getOntologyAccess(context);
+	public EdaItemDao(){
+		this.getOntologyAccess();
 		EdaItemDao.ontoManager = (VoiDManager) ontoMan;
 	}	
 
-	private OntologyManager getOntologyAccess(ServletContext context){
+	private OntologyManager getOntologyAccess(){
 		if (ontoMan != null) return ontoMan;
-		Properties access = new Properties();
-		try {
-			InputStream is = context.getResourceAsStream("/WEB-INF/resources/credentials.properties");
-			access.load(is);
-			is.close();
-			
-			String endpoint = access.getProperty("endpoint");
-			String user = access.getProperty("user");
-			String passwd = access.getProperty("passwd");
-			ontoMan = new SesameDAOFactory().createRemoteDAO(endpoint, new UserPassword(user, passwd), 2.0);
-			return ontoMan;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+		ontoMan = new SesameDAOFactory().createRemoteDAO("http://km.aifb.kit.edu/services/xlime-sparql",
+				//TODO: retrieve credentials from config file
+				new UserPassword("xlime", "Iph&aen9tahsh6aej}ah9ie"), 2.0);
+		return ontoMan;
 	}
 
 	public String getNumTriples(){
@@ -123,6 +104,28 @@ public class EdaItemDao {
 		if(!result.isEmpty()){
 			data = result.get("1").get("count");			
 		}	
+		return data;
+	}
+	
+	public String getNumMicropostsbyFilter(String filter){
+		String data = null;
+		String query = "PREFIX sioc: <http://rdfs.org/sioc/ns#> "
+				+ "PREFIX xlime: <http://xlime-project.org/vocab/> "
+				+ "SELECT count(distinct ?s) AS ?count WHERE { " 
+				+ "?s a sioc:MicroPost. " 
+				+ "?s xlime:keywordFilterName ?filter. ";
+		
+		String[] params = filter.split(",");
+		String filter_query = "";
+		for (String p : params) {
+			filter_query += "?filter = \"" + p + "\" || ";
+		}
+		filter_query = filter_query.substring(0, filter_query.length()-4);
+		query += "FILTER (" + filter_query + ")}";
+		Map<String, Map<String, String>> result = ontoMan.executeAdHocSPARQLQuery(query);
+		if(!result.isEmpty()){
+			data = result.get("1").get("count");			
+		}
 		return data;
 	}
 

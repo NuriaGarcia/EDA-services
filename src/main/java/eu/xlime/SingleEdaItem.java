@@ -24,6 +24,7 @@ public class SingleEdaItem {
 	private String objects;
 	private String activities;
 	private String microposts;
+	private String microposts_filter;
 	private String newsarticles;
 	private String mediaresources;
 	private List<HistogramItem> instancesPerClass;
@@ -71,6 +72,12 @@ public class SingleEdaItem {
 	}
 	public void setMicroposts(String microposts) {
 		this.microposts = microposts;
+	}	
+	public String getMicroposts_filter() {
+		return microposts_filter;
+	}
+	public void setMicroposts_filter(String microposts_filter) {
+		this.microposts_filter = microposts_filter;
 	}
 	public String getNewsarticles() {
 		return newsarticles;

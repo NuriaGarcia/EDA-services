@@ -31,6 +31,6 @@ public class EdaServicesInitializer implements ServletContextListener {
 }
 
 //Example
-//http://localhost:8080/EDAServices/xlime-data-summary/counters?action=getCounts&object=triples
-//http://localhost:8080/EDAServices/xlime-data-summary/histograms?action=getHistogram&object=instancesPerClass&format=json
-
+//http://localhost:8080/xlime-data-summary/counters?action=getCounts&object=triples
+//http://localhost:8080/xlime-data-summary/counters?action=getCountsFilter&object=Brexit EN,Brexit ES,Brexit DE,Brexit IT&format=json
+//http://localhost:8080/xlime-data-summary/histograms?action=getHistogram&object=instancesPerClass&format=json

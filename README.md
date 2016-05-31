@@ -10,3 +10,5 @@ API Usage Examples
 http://localhost:8080/EDAServices/xlime-data-summary/counters?action=getCounts&object=triples,microposts,newsarticles,mediaresources,activities&format=json
 
 http://localhost:8080/EDAServices/xlime-data-summary/histograms?action=getHistogram&object=instancesPerClass&format=json 
+
+http://localhost:8080/EDAServices/xlime-data-summary/counters?action=getCountsFilter&object=Brexit%20EN,%20Brexit%20ES&format=json 
